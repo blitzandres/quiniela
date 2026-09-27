@@ -1,0 +1,4 @@
+# Local config with real API keys (copy from config.example.js)
+config.js
+
+.DS_Store
