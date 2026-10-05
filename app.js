@@ -270,7 +270,8 @@ function stopListeners() {
 }
 
 // ── LIVE SCORES (api-sports.io) ───────────────────────────────
-const DEFAULT_API_KEY = 'fa6cc4a79c8cab4bdd3a078d0eacec7e';
+// Key comes from config.js (gitignored). Copy config.example.js -> config.js and add your key.
+const API_SPORTS_KEY = (window.QUINIELA_CONFIG && window.QUINIELA_CONFIG.apiSportsKey) || '';
 const TEAM_NORM = {
   'Korea Republic': 'South Korea', "Côte d'Ivoire": 'Ivory Coast',
   'Ivory Coast': 'Ivory Coast', 'Czech Republic': 'Czechia',
@@ -289,11 +290,16 @@ function lastSyncLabel() {
 }
 
 async function fetchLiveResults(showToast = true) {
+  if (!API_SPORTS_KEY || API_SPORTS_KEY === 'YOUR_API_SPORTS_KEY') {
+    document.querySelectorAll('.q-sync-time').forEach(el => el.textContent = 'Not configured');
+    if (showToast) toast('⚠ Live scores not configured: add your api-sports.io key to config.js');
+    return;
+  }
   document.querySelectorAll('.q-sync-time').forEach(el => el.textContent = 'Syncing…');
   try {
     const r = await fetch(
       'https://v3.football.api-sports.io/fixtures?league=1&season=2026&status=FT',
-      { headers: { 'x-apisports-key': DEFAULT_API_KEY } }
+      { headers: { 'x-apisports-key': API_SPORTS_KEY } }
     );
     if (r.status === 401) { if (showToast) toast('⚠ API key invalid'); return; }
     if (r.status === 429) { if (showToast) toast('Rate limited — try again soon'); return; }
